@@ -1,1 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Whirl Islands Map</title>
+<style>
+.wi-wrap{position:relative;width:100%;max-width:680px;margin:0 auto;background:#c8dde8;border:2px solid #4a6472;border-radius:6px;overflow:hidden;box-sizing:border-box;font-family:Georgia,"Times New Roman",serif}
+.wi-wrap input[type="checkbox"]{position:absolute;opacity:0;width:0;height:0;pointer-events:none}
+.wi-map-area{position:relative;width:100%}
+.wi-map-svg{display:block;width:100%}
+.wi-labels{position:absolute;top:0;left:0;width:100%;height:100%}
+.wi-label{position:absolute;display:block;width:7%;padding-top:7%;border-radius:50%;cursor:pointer;background:transparent;border:2px solid transparent;box-sizing:border-box;transform:translate(-50%,-50%);transition:border-color .2s,background .2s}
+.wi-label:hover{border-color:rgba(239,159,39,.6);background:rgba(239,159,39,.1)}
+.wi-label-1{left:41.9%;top:30.6%}
+.wi-label-2{left:57.4%;top:20.9%}
+.wi-label-3{left:49.7%;top:47.6%}
+.wi-label-4{left:42.6%;top:62.6%}
+.wi-label-5{left:58.5%;top:78.7%}
+.wi-label-6{left:90.4%;top:63.8%}
+.wp-ring{stroke:#4a6472;fill:#b8cdd8}
+.wp-dot{fill:#4a7aaa}
+.wp-path{stroke:#4a7aaa}
+#wp1:checked~.wi-map-area .wp1 .wp-ring{fill:#ddd5b8;stroke:#EF9F27}
+#wp1:checked~.wi-map-area .wp1 .wp-dot{fill:#EF9F27}
+#wp1:checked~.wi-map-area .wp1 .wp-path{stroke:#EF9F27}
+#wp2:checked~.wi-map-area .wp2 .wp-ring{fill:#ddd5b8;stroke:#EF9F27}
+#wp2:checked~.wi-map-area .wp2 .wp-dot{fill:#EF9F27}
+#wp2:checked~.wi-map-area .wp2 .wp-path{stroke:#EF9F27}
+#wp3:checked~.wi-map-area .wp3 .wp-ring{fill:#ddd5b8;stroke:#EF9F27}
+#wp3:checked~.wi-map-area .wp3 .wp-dot{fill:#EF9F27}
+#wp3:checked~.wi-map-area .wp3 .wp-path{stroke:#EF9F27}
+#wp4:checked~.wi-map-area .wp4 .wp-ring{fill:#ddd5b8;stroke:#EF9F27}
+#wp4:checked~.wi-map-area .wp4 .wp-dot{fill:#EF9F27}
+#wp4:checked~.wi-map-area .wp4 .wp-path{stroke:#EF9F27}
+#wp5:checked~.wi-map-area .wp5 .wp-ring{fill:#ddd5b8;stroke:#EF9F27}
+#wp5:checked~.wi-map-area .wp5 .wp-dot{fill:#EF9F27}
+#wp5:checked~.wi-map-area .wp5 .wp-path{stroke:#EF9F27}
+#wp6:checked~.wi-map-area .wp6 .wp-ring{fill:#ddd5b8;stroke:#EF9F27}
+#wp6:checked~.wi-map-area .wp6 .wp-dot{fill:#EF9F27}
+#wp6:checked~.wi-map-area .wp6 .wp-path{stroke:#EF9F27}
+.cave5-group{opacity:0;transition:opacity .5s}
+#wp4:checked~#wp5:checked~#wp6:checked~.wi-map-area .cave5-group{opacity:1}
+#wp1:checked~#wp4:checked~#wp5:checked~#wp6:checked~.wi-map-area .cave5-group{opacity:0}
+#wp2:checked~#wp4:checked~#wp5:checked~#wp6:checked~.wi-map-area .cave5-group{opacity:0}
+#wp3:checked~#wp4:checked~#wp5:checked~#wp6:checked~.wi-map-area .cave5-group{opacity:0}
+.wi-status{background:#f5f0e0;border-top:1px solid #8a7d5c;padding:8px 14px;font-size:12px;color:#3a3020;text-align:center;font-style:italic;min-height:32px}
+.wi-msg{display:none}
+.wi-msg-default{display:block}
+#wp1:checked~.wi-status .wi-msg-default,#wp2:checked~.wi-status .wi-msg-default,#wp3:checked~.wi-status .wi-msg-default,#wp4:checked~.wi-status .wi-msg-default,#wp5:checked~.wi-status .wi-msg-default,#wp6:checked~.wi-status .wi-msg-default{display:none}
+#wp1:checked~.wi-status .wi-msg-wrong,#wp2:checked~.wi-status .wi-msg-wrong,#wp3:checked~.wi-status .wi-msg-wrong{display:block}
+#wp4:checked~.wi-status .wi-msg-close,#wp5:checked~.wi-status .wi-msg-close,#wp6:checked~.wi-status .wi-msg-close{display:block}
+#wp1:checked~.wi-status .wi-msg-close,#wp2:checked~.wi-status .wi-msg-close,#wp3:checked~.wi-status .wi-msg-close{display:none}
+#wp4:checked~#wp5:checked~#wp6:checked~.wi-status .wi-msg-solved{display:block}
+#wp4:checked~#wp5:checked~#wp6:checked~.wi-status .wi-msg-close{display:none}
+#wp1:checked~#wp4:checked~#wp5:checked~#wp6:checked~.wi-status .wi-msg-solved{display:none}
+#wp2:checked~#wp4:checked~#wp5:checked~#wp6:checked~.wi-status .wi-msg-solved{display:none}
+#wp3:checked~#wp4:checked~#wp5:checked~#wp6:checked~.wi-status .wi-msg-solved{display:none}
+#wp1:checked~#wp4:checked~#wp5:checked~#wp6:checked~.wi-status .wi-msg-wrong{display:block}
+#wp2:checked~#wp4:checked~#wp5:checked~#wp6:checked~.wi-status .wi-msg-wrong{display:block}
+#wp3:checked~#wp4:checked~#wp5:checked~#wp6:checked~.wi-status .wi-msg-wrong{display:block}
+.wi-chips{background:#dce8ee;border-top:1px solid #8a7d5c;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.wi-chip-label{display:inline-block;padding:4px 14px;border-radius:20px;border:1px solid #4a6472;background:#f5f0e0;color:#3a3020;font-size:12px;font-family:Georgia,serif;cursor:pointer;transition:background .2s,border-color .2s,color .2s;user-select:none}
+.wi-chip-label:hover{background:#ece7d4}
+#wp1:checked~.wi-chips .chip1,#wp2:checked~.wi-chips .chip2,#wp3:checked~.wi-chips .chip3,#wp4:checked~.wi-chips .chip4,#wp5:checked~.wi-chips .chip5,#wp6:checked~.wi-chips .chip6{background:#EF9F27;border-color:#BA7517;color:#412402;font-weight:bold}
+</style>
 
+<div class="wi-wrap">
+
+  <input type="checkbox" id="wp1">
+  <input type="checkbox" id="wp2">
+  <input type="checkbox" id="wp3">
+  <input type="checkbox" id="wp4">
+  <input type="checkbox" id="wp5">
+  <input type="checkbox" id="wp6">
+
+  <div class="wi-map-area">
+
+    <div class="wi-labels">
+      <label class="wi-label wi-label-1" for="wp1"></label>
+      <label class="wi-label wi-label-2" for="wp2"></label>
+      <label class="wi-label wi-label-3" for="wp3"></label>
+      <label class="wi-label wi-label-4" for="wp4"></label>
+      <label class="wi-label wi-label-5" for="wp5"></label>
+      <label class="wi-label wi-label-6" for="wp6"></label>
+    </div>
+
+    <svg class="wi-map-svg" viewBox="0 0 680 620" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="wsg" width="30" height="30" patternUnits="userSpaceOnUse">
+          <path d="M30 0L0 0L0 30" fill="none" stroke="#a8c5d4" stroke-width="0.3" opacity="0.4"/>
+        </pattern>
+      </defs>
+
+      <rect width="680" height="620" fill="#c8dde8"/>
+      <rect width="680" height="620" fill="url(#wsg)"/>
+
+      <!-- tide lines -->
+      <line x1="40" y1="62"  x2="640" y2="62"  stroke="#185FA5" stroke-width="1"   stroke-dasharray="6 3" opacity="0.6"/>
+      <line x1="40" y1="148" x2="640" y2="148" stroke="#378ADD" stroke-width="1"   stroke-dasharray="6 3" opacity="0.6"/>
+      <line x1="40" y1="248" x2="640" y2="248" stroke="#5DCAA5" stroke-width="1"   stroke-dasharray="6 3" opacity="0.6"/>
+      <line x1="40" y1="342" x2="640" y2="342" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="8 3" opacity="0.85"/>
+      <line x1="40" y1="442" x2="640" y2="442" stroke="#0F6E56" stroke-width="1.5" stroke-dasharray="8 3" opacity="0.85"/>
+      <line x1="40" y1="530" x2="640" y2="530" stroke="#85B7EB" stroke-width="1"   stroke-dasharray="4 4" opacity="0.45"/>
+      <rect x="40" y="342" width="600" height="100" fill="#1D9E75" opacity="0.06"/>
+
+      <!-- rocks -->
+      <ellipse cx="90"  cy="192" rx="12" ry="7" fill="#8a9fa8" opacity="0.7"/>
+      <ellipse cx="98"  cy="197" rx="8"  ry="5" fill="#7a9098" opacity="0.6"/>
+      <ellipse cx="590" cy="168" rx="10" ry="6" fill="#8a9fa8" opacity="0.7"/>
+      <ellipse cx="598" cy="162" rx="6"  ry="4" fill="#7a9098" opacity="0.5"/>
+      <ellipse cx="152" cy="492" rx="14" ry="8" fill="#8a9fa8" opacity="0.7"/>
+      <ellipse cx="163" cy="498" rx="9"  ry="5" fill="#7a9098" opacity="0.6"/>
+      <ellipse cx="562" cy="482" rx="11" ry="6" fill="#8a9fa8" opacity="0.7"/>
+      <ellipse cx="572" cy="489" rx="7"  ry="4" fill="#7a9098" opacity="0.5"/>
+      <ellipse cx="340" cy="78"  rx="9"  ry="5" fill="#8a9fa8" opacity="0.6"/>
+      <ellipse cx="332" cy="557" rx="13" ry="7" fill="#8a9fa8" opacity="0.6"/>
+      <ellipse cx="76"  cy="382" rx="8"  ry="5" fill="#8a9fa8" opacity="0.6"/>
+      <ellipse cx="622" cy="372" rx="9"  ry="5" fill="#8a9fa8" opacity="0.5"/>
+
+      <!-- North Isle -->
+      <path d="M128 112 Q154 92 194 97 Q230 90 254 112 Q272 130 268 157 Q264 183 247 198 Q229 214 204 217 Q178 220 158 207 Q136 194 126 174 Q116 150 128 112Z" fill="#c4b896" stroke="#8a7d5c" stroke-width="1"/>
+      <path d="M143 122 Q163 110 194 112 Q220 107 241 122 Q254 138 251 157 Q247 177 233 190 Q215 204 195 205 Q172 206 155 194 Q138 182 134 164 Q128 142 143 122Z" fill="#d4c8a6" stroke="#8a7d5c" stroke-width="0.5" opacity="0.7"/>
+      <path d="M163 147 Q173 137 183 147 Q178 157 168 154Z" fill="#a89870" opacity="0.5"/>
+      <path d="M208 130 Q220 122 228 132 Q222 142 212 139Z" fill="#a89870" opacity="0.4"/>
+      <ellipse cx="248" cy="190" rx="9" ry="6" fill="#2a2520" stroke="#5a4f3c" stroke-width="1"/>
+
+      <!-- East Isle -->
+      <path d="M430 88 Q455 72 490 80 Q515 77 535 98 Q548 115 542 141 Q536 161 518 174 Q500 184 478 182 Q458 180 442 166 Q428 152 424 132 Q420 109 430 88Z" fill="#c4b896" stroke="#8a7d5c" stroke-width="1"/>
+      <path d="M443 98 Q462 85 488 93 Q508 90 523 107 Q532 123 528 143 Q522 159 508 167 Q492 176 474 174 Q456 172 444 159 Q434 146 432 129 Q428 109 443 98Z" fill="#d4c8a6" stroke="#8a7d5c" stroke-width="0.5" opacity="0.7"/>
+      <path d="M458 118 Q468 109 476 119 Q470 129 461 126Z" fill="#a89870" opacity="0.5"/>
+      <path d="M498 103 Q508 96 515 104 Q510 113 501 111Z" fill="#a89870" opacity="0.4"/>
+      <ellipse cx="432" cy="143" rx="9" ry="6" fill="#2a2520" stroke="#5a4f3c" stroke-width="1"/>
+
+      <!-- West Isle -->
+      <path d="M113 368 Q138 350 168 357 Q198 350 218 370 Q230 384 226 407 Q222 430 204 442 Q186 454 163 452 Q140 450 124 434 Q108 418 108 396 Q106 377 113 368Z" fill="#c4b896" stroke="#8a7d5c" stroke-width="1"/>
+      <path d="M126 377 Q146 362 168 368 Q193 362 210 378 Q218 392 215 412 Q211 428 196 438 Q180 447 160 445 Q140 443 127 429 Q114 415 114 395 Q112 381 126 377Z" fill="#d4c8a6" stroke="#8a7d5c" stroke-width="0.5" opacity="0.7"/>
+      <path d="M138 393 Q148 384 156 394 Q150 402 141 399Z" fill="#a89870" opacity="0.5"/>
+      <ellipse cx="218" cy="408" rx="9" ry="6" fill="#2a2520" stroke="#5a4f3c" stroke-width="1"/>
+
+      <!-- South Isle -->
+      <path d="M440 358 Q468 340 510 344 Q548 340 572 362 Q590 380 588 412 Q586 442 565 460 Q545 474 515 476 Q485 478 462 462 Q440 446 432 420 Q424 394 428 372 Q432 360 440 358Z" fill="#c4b896" stroke="#8a7d5c" stroke-width="1"/>
+      <path d="M453 368 Q474 352 510 355 Q542 352 562 370 Q576 386 574 414 Q572 438 554 452 Q535 465 511 467 Q483 469 462 454 Q445 440 438 418 Q431 394 436 376 Q440 365 453 368Z" fill="#d4c8a6" stroke="#8a7d5c" stroke-width="0.5" opacity="0.7"/>
+      <path d="M468 388 Q480 378 488 388 Q482 397 472 394Z" fill="#a89870" opacity="0.5"/>
+      <path d="M525 365 Q535 357 542 365 Q537 375 528 372Z" fill="#a89870" opacity="0.4"/>
+      <path d="M550 402 Q560 395 566 403 Q561 412 552 410Z" fill="#a89870" opacity="0.4"/>
+      <ellipse cx="444" cy="420" rx="9" ry="6" fill="#2a2520" stroke="#5a4f3c" stroke-width="1"/>
+
+      <!-- Cave 5 hidden -->
+      <g class="cave5-group">
+        <ellipse cx="510" cy="347" rx="9" ry="6" fill="#2a2520" stroke="#EF9F27" stroke-width="2"/>
+      </g>
+
+      <!-- Whirlpool 1 -->
+      <g class="wp1">
+        <circle class="wp-ring" cx="285" cy="200" r="19" stroke-width="0.8"/>
+        <path class="wp-path" d="M285,186 A14,14 0 1,1 275.1,209.9" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+        <path class="wp-path" d="M285,190 A10,10 0 1,1 278,207"      fill="none" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <path class="wp-path" d="M285,194 A6,6   0 1,1 281,200"      fill="none" stroke-width="1"   stroke-linecap="round" opacity="0.4"/>
+        <circle class="wp-dot" cx="285" cy="200" r="2.5"/>
+      </g>
+
+      <!-- Whirlpool 2 -->
+      <g class="wp2">
+        <circle class="wp-ring" cx="390" cy="130" r="19" stroke-width="0.8"/>
+        <path class="wp-path" d="M390,116 A14,14 0 1,1 380.1,139.9" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+        <path class="wp-path" d="M390,120 A10,10 0 1,1 383,137"      fill="none" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <path class="wp-path" d="M390,124 A6,6   0 1,0 394,130"      fill="none" stroke-width="1"   stroke-linecap="round" opacity="0.4"/>
+        <circle class="wp-dot" cx="390" cy="130" r="2.5"/>
+      </g>
+
+      <!-- Whirlpool 3 -->
+      <g class="wp3">
+        <circle class="wp-ring" cx="338" cy="295" r="19" stroke-width="0.8"/>
+        <path class="wp-path" d="M338,281 A14,14 0 1,0 347.9,304.9" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+        <path class="wp-path" d="M338,285 A10,10 0 1,0 345,302"      fill="none" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <path class="wp-path" d="M338,289 A6,6   0 1,0 342,295"      fill="none" stroke-width="1"   stroke-linecap="round" opacity="0.4"/>
+        <circle class="wp-dot" cx="338" cy="295" r="2.5"/>
+      </g>
+
+      <!-- Whirlpool 4 -->
+      <g class="wp4">
+        <circle class="wp-ring" cx="290" cy="388" r="19" stroke-width="0.8"/>
+        <path class="wp-path" d="M290,374 A14,14 0 1,1 280.1,397.9" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+        <path class="wp-path" d="M290,378 A10,10 0 1,1 283,395"      fill="none" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <path class="wp-path" d="M290,382 A6,6   0 1,1 286,388"      fill="none" stroke-width="1"   stroke-linecap="round" opacity="0.4"/>
+        <circle class="wp-dot" cx="290" cy="388" r="2.5"/>
+      </g>
+
+      <!-- Whirlpool 5 -->
+      <g class="wp5">
+        <circle class="wp-ring" cx="398" cy="488" r="19" stroke-width="0.8"/>
+        <path class="wp-path" d="M398,474 A14,14 0 1,0 407.9,497.9" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+        <path class="wp-path" d="M398,478 A10,10 0 1,0 405,495"      fill="none" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <path class="wp-path" d="M398,482 A6,6   0 1,0 402,488"      fill="none" stroke-width="1"   stroke-linecap="round" opacity="0.4"/>
+        <circle class="wp-dot" cx="398" cy="488" r="2.5"/>
+      </g>
+
+      <!-- Whirlpool 6 -->
+      <g class="wp6">
+        <circle class="wp-ring" cx="615" cy="395" r="19" stroke-width="0.8"/>
+        <path class="wp-path" d="M615,381 A14,14 0 1,1 605.1,404.9" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+        <path class="wp-path" d="M615,385 A10,10 0 1,1 608,402"      fill="none" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+        <path class="wp-path" d="M615,389 A6,6   0 1,1 611,395"      fill="none" stroke-width="1"   stroke-linecap="round" opacity="0.4"/>
+        <circle class="wp-dot" cx="615" cy="395" r="2.5"/>
+      </g>
+
+      <!-- compass rose (graphic only) -->
+      <g transform="translate(600,545)">
+        <circle r="22" fill="#f5f0e0" stroke="#8a7d5c" stroke-width="0.5" opacity="0.9"/>
+        <polygon points="0,-18 3,0 -3,0" fill="#3a3020" opacity="0.9"/>
+        <polygon points="0,18 3,0 -3,0"  fill="#8a7d5c" opacity="0.7"/>
+        <polygon points="-18,0 0,3 0,-3" fill="#8a7d5c" opacity="0.7"/>
+        <polygon points="18,0 0,3 0,-3"  fill="#8a7d5c" opacity="0.7"/>
+      </g>
+
+      <rect x="40" y="44" width="600" height="546" fill="none" stroke="#4a6472" stroke-width="1" opacity="0.4"/>
+    </svg>
+
+  </div>
+
+  <div class="wi-status">
+    <span class="wi-msg wi-msg-default">Click the whirlpools to alter the tide. Find the correct three to reveal what lies beneath.</span>
+    <span class="wi-msg wi-msg-wrong">The currents are disturbed — one of these eddies works against the flow. Deactivate it.</span>
+    <span class="wi-msg wi-msg-close">The tide stirs... the sea is pulling back further than usual.</span>
+    <span class="wi-msg wi-msg-solved">The sea recedes to its lowest mark. A fifth cave emerges on South Isle's northern face — a passage never drawn on any chart.</span>
+  </div>
+
+  <div class="wi-chips">
+    <label class="wi-chip-label chip1" for="wp1">&#9679;</label>
+    <label class="wi-chip-label chip2" for="wp2">&#9679;</label>
+    <label class="wi-chip-label chip3" for="wp3">&#9679;</label>
+    <label class="wi-chip-label chip4" for="wp4">&#9679;</label>
+    <label class="wi-chip-label chip5" for="wp5">&#9679;</label>
+    <label class="wi-chip-label chip6" for="wp6">&#9679;</label>
+  </div>
+
+</div>
+
+</style>
+</head>
+
+<body style="margin:0;">
+
+<!-- PASTE YOUR ENTIRE MAP HTML HERE -->
+
+</body>
+</html>
